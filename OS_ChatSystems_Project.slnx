@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ChatSystem_SharedMemory/ChatSystem_SharedMemory.vcxproj" Id="19e2837c-bc98-4d27-a2ce-5723153a2a36" />
+  <Project Path="ChatSystem_Sockets/ChatSystem_Sockets.vcxproj" Id="3b92c49d-62b5-4cc4-b178-870a03927b3d" />
+</Solution>
