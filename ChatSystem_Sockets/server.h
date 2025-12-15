@@ -1,18 +1,28 @@
+#ifndef SERVER_H
+#define SERVER_H
 
-#pragma once
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iostream>
-#include <thread>
-using namespace std;
+#include <QObject>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QVector>
+#include <QThread>
 
-class ChatServer {
-private:
-    SOCKET listeningSocket;
-
+class Server : public QTcpServer
+{
+    Q_OBJECT
 public:
-    ChatServer();
-    bool startServer(int port);
-    void handleClient(SOCKET clientSocket);
-    void run();
+    explicit Server(QObject* parent = nullptr);
+    bool startServer();
+
+protected:
+    void incomingConnection(qintptr socketDescriptor) override;
+
+private slots:
+    void readyRead();
+    void disconnected();
+
+private:
+    QVector<QTcpSocket*> clients;
 };
+
+#endif // SERVER_H

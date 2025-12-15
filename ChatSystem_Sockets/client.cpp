@@ -1,44 +1,33 @@
 #include "client.h"
+#include <QDebug>
 
-ChatClient::ChatClient() {
-    WSAData wsData;
-    WSAStartup(MAKEWORD(2, 2), &wsData);
+Client::Client(QObject* parent) : QObject(parent)
+{
+    socket = new QTcpSocket(this);
+    connect(socket, &QTcpSocket::readyRead, this, &Client::readyRead);
+    connect(socket, &QTcpSocket::connected, this, &Client::connected);
 }
 
-bool ChatClient::connectToServer(string ip, int port) {
-    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket == INVALID_SOCKET) {
-        cout << "Error creating socket\n";
-        return false;
-    }
-
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(port);
-    inet_pton(AF_INET, ip.c_str(), &hint.sin_addr);
-
-    if (connect(clientSocket, (sockaddr*)&hint, sizeof(hint)) == SOCKET_ERROR) {
-        cout << "Could not connect to server\n";
-        return false;
-    }
-
-    cout << "Connected to server!\n";
-    return true;
+void Client::connectToServer(const QString& host, quint16 port)
+{
+    socket->connectToHost(host, port);
 }
 
-void ChatClient::sendMessage(string msg) {
-    send(clientSocket, msg.c_str(), msg.size() + 1, 0);
+void Client::sendMessage(const QString& message)
+{
+    if (socket->state() == QTcpSocket::ConnectedState) {
+        socket->write(message.toUtf8());
+    }
 }
 
-void ChatClient::receiveMessages() {
-    char buffer[4096];
+void Client::readyRead()
+{
+    QByteArray data = socket->readAll();
+    QString message = QString::fromUtf8(data);
+    emit messageReceived(message);
+}
 
-    while (true) {
-        ZeroMemory(buffer, 4096);
-        int bytes = recv(clientSocket, buffer, 4096, 0);
-
-        if (bytes > 0) {
-            cout << "Server: " << buffer << endl;
-        }
-    }
+void Client::connected()
+{
+    qDebug() << "Connected to server.";
 }

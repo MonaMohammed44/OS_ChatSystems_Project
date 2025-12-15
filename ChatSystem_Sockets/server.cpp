@@ -1,62 +1,52 @@
-#include "server.h"
+﻿#include "server.h"
+#include <QDebug>
 
-ChatServer::ChatServer() {
-    WSAData wsData;
-    WSAStartup(MAKEWORD(2, 2), &wsData);
-}
+Server::Server(QObject* parent) : QTcpServer(parent) {}
 
-bool ChatServer::startServer(int port) {
-    listeningSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listeningSocket == INVALID_SOCKET) {
-        cout << "Error creating socket\n";
+bool Server::startServer()
+{
+    if (!listen(QHostAddress::Any, 1234)) {
+        qDebug() << "Server could not start!";
         return false;
     }
-
-    sockaddr_in hint;
-    hint.sin_family = AF_INET;
-    hint.sin_port = htons(port);
-    hint.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(listeningSocket, (sockaddr*)&hint, sizeof(hint)) == SOCKET_ERROR) {
-        cout << "Bind failed\n";
-        return false;
+    else {
+        qDebug() << "Server started on port 1234";
+        return true;
     }
-
-    listen(listeningSocket, SOMAXCONN);
-    cout << "Server started on port " << port << "\n";
-    return true;
 }
 
-void ChatServer::handleClient(SOCKET clientSocket) {
-    char buffer[4096];
+void Server::incomingConnection(qintptr socketDescriptor)
+{
+    QTcpSocket* client = new QTcpSocket(this);
+    client->setSocketDescriptor(socketDescriptor);
+    clients.append(client);
 
-    while (true) {
-        ZeroMemory(buffer, 4096);
-        int bytes = recv(clientSocket, buffer, 4096, 0);
+    connect(client, &QTcpSocket::readyRead, this, &Server::readyRead);
+    connect(client, &QTcpSocket::disconnected, this, &Server::disconnected);
 
-        if (bytes <= 0) break;
-
-        cout << "Client: " << buffer << endl;
-
-        send(clientSocket, buffer, bytes, 0);
-    }
-
-    closesocket(clientSocket);
+    qDebug() << "New client connected.";
 }
 
-void ChatServer::run() {
-    SOCKET clientSocket;
-    sockaddr_in client;
-    int clientSize = sizeof(client);
+void Server::readyRead()
+{
+    QTcpSocket* client = qobject_cast<QTcpSocket*>(sender());
+    QByteArray data = client->readAll();
+    QString message = QString::fromUtf8(data);
 
-    while (true) {
-        clientSocket = accept(listeningSocket, (sockaddr*)&client, &clientSize);
+    qDebug() << "Message from client:" << message;
 
-        if (clientSocket == INVALID_SOCKET) continue;
-
-        cout << "Client connected!\n";
-
-        thread clientThread(&ChatServer::handleClient, this, clientSocket);
-        clientThread.detach();
+    // Broadcast to all clients
+    for (QTcpSocket* otherClient : clients) {
+        if (otherClient != client) {
+            otherClient->write(data);
+        }
     }
+}
+
+void Server::disconnected()
+{
+    QTcpSocket* client = qobject_cast<QTcpSocket*>(sender());
+    clients.removeAll(client);
+    client->deleteLater();
+    qDebug() << "Client disconnected.";
 }

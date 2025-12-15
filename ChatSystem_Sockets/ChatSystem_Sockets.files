@@ -1,0 +1,14 @@
+CMakeLists.txt
+ChatSystem_Sockets.cpp
+chatmessage.cpp
+chatmessage.h
+client.cpp
+client.h
+gui.cpp
+gui.h
+main.cpp
+protocol.h
+server.cpp
+server.h
+threadmanager.cpp
+threadmanager.h

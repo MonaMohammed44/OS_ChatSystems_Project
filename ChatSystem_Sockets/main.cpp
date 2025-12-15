@@ -1,35 +1,29 @@
+﻿#include <QApplication>
+#include "gui.h"
 #include "server.h"
-#include "client.h"
-#include <iostream>
-using namespace std;
+#include <QMessageBox>
 
-int main() {
-    int choice;
-    cout << "1. Run Server\n";
-    cout << "2. Run Client\n";
-    cout << "Choose: ";
-    cin >> choice;
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
 
-    if (choice == 1) {
-        ChatServer server;
-        if (server.startServer(8080)) {
-            server.run();
+    try {
+        // Start server
+        Server server;
+        if (!server.startServer()) {
+            QMessageBox::critical(nullptr, "Error", "Failed to start server!");
+            return 1;
         }
+
+        // Start GUI
+        GUI chatWindow;
+        chatWindow.setWindowTitle("Socket Chat System - OS Project");
+        chatWindow.show();
+
+        return app.exec();
     }
-    else if (choice == 2) {
-        ChatClient client;
-        string message;
-
-        if (client.connectToServer("127.0.0.1", 8080)) {
-            thread recvThread(&ChatClient::receiveMessages, &client);
-            recvThread.detach();
-
-            while (true) {
-                getline(cin >> ws, message);
-                client.sendMessage(message);
-            }
-        }
+    catch (const std::exception& e) {
+        QMessageBox::critical(nullptr, "Error", QString("Exception: %1").arg(e.what()));
+        return 1;
     }
-
-    return 0;
 }

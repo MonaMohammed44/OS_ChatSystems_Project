@@ -1,18 +1,27 @@
+#ifndef CLIENT_H
+#define CLIENT_H
 
-#pragma once
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iostream>
-#include <string>
-using namespace std;
+#include <QObject>
+#include <QString>
+#include <QTcpSocket>
 
-class ChatClient {
-private:
-    SOCKET clientSocket;
-
+class Client : public QObject
+{
+    Q_OBJECT
 public:
-    ChatClient();
-    bool connectToServer(string ip, int port);
-    void sendMessage(string msg);
-    void receiveMessages();
+    explicit Client(QObject* parent = nullptr);
+    void connectToServer(const QString& host, quint16 port);
+    void sendMessage(const QString& message);
+
+signals:
+    void messageReceived(const QString& message);
+
+private slots:
+    void readyRead();
+    void connected();
+
+private:
+    QTcpSocket* socket;
 };
+
+#endif // CLIENT_H
