@@ -1,7 +1,8 @@
 #include "gui.h"
 #include <QApplication>
 
-GUI::GUI(QWidget* parent) : QWidget(parent)
+GUI::GUI(const QString& serverHost, quint16 serverPort, QWidget* parent)
+    : QWidget(parent), serverHost(serverHost), serverPort(serverPort)
 {
     chatDisplay = new QTextEdit(this);
     chatDisplay->setReadOnly(true);
@@ -21,7 +22,7 @@ GUI::GUI(QWidget* parent) : QWidget(parent)
     setWindowTitle("Socket Chat System");
 
     client = new Client(this);
-    client->connectToServer("127.0.0.1", 1234);
+    client->connectToServer(this->serverHost, this->serverPort);
 
     connect(sendButton, &QPushButton::clicked, this, &GUI::sendMessage);
     connect(client, &Client::messageReceived, this, &GUI::displayMessage);

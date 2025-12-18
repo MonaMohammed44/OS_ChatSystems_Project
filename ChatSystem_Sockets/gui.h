@@ -14,7 +14,7 @@ class GUI : public QWidget
     Q_OBJECT  // مهم جداً لـ Qt Creator
 
 public:
-    explicit GUI(QWidget *parent = nullptr);
+    explicit GUI(const QString& serverHost = "127.0.0.1", quint16 serverPort = 1234, QWidget *parent = nullptr);
 
 private slots:
     void sendMessage();
@@ -25,6 +25,8 @@ private:
     QLineEdit *messageInput;
     QPushButton *sendButton;
     Client *client;
+    QString serverHost;
+    quint16 serverPort;
 };
 
 #endif // GUI_H
