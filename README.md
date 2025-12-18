@@ -7,7 +7,9 @@
 
 ## تشغيل `ChatSystem_Sockets` (Server / Client)
 
-البرنامج واحد، وبيشتغل بطريقتين من خلال arguments.
+البرنامج واحد (GUI)، وبيشتغل بطريقتين من خلال arguments:
+- **Server mode**: يشغل السيرفر + يفتح الـGUI.
+- **Client mode**: يفتح الـGUI ويتصل على host/port.
 
 ### Server (على جهاز السيرفر)
 
@@ -58,5 +60,6 @@ ipconfig
 
 - **Firewall**: على جهاز السيرفر افتح **TCP Inbound** على البورت `1234` أو اسمح للـ`ChatSystem_Sockets.exe`.
 - لازم الجهازين على نفس الشبكة أو يكون فيه Routing صحيح.
+
 
 

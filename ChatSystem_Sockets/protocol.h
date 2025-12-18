@@ -26,39 +26,6 @@ enum ServerCommand {
     CMD_PRIVATE_MSG = 105   // ????? ????
 };
 
-// ???? ???????
-struct ChatMessage {
-    MessageType type;
-    QString sender;
-    QString content;
-    QString timestamp;
-    QString receiver;  // ????????? ??????
-
-    // ????? ??? ????? ??????
-    QString serialize() const {
-        return QString("%1|%2|%3|%4|%5")
-            .arg(type)
-            .arg(sender)
-            .arg(content)
-            .arg(timestamp)
-            .arg(receiver);
-    }
-
-    // ????? ?? ?????
-    static ChatMessage deserialize(const QString& data) {
-        QStringList parts = data.split("|");
-        ChatMessage msg;
-        if (parts.size() >= 5) {
-            msg.type = static_cast<MessageType>(parts[0].toInt());
-            msg.sender = parts[1];
-            msg.content = parts[2];
-            msg.timestamp = parts[3];
-            msg.receiver = parts[4];
-        }
-        return msg;
-    }
-};
-
 // ??????? ???????
 struct ConnectionSettings {
     QString serverIP;

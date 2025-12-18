@@ -1,14 +1,15 @@
 #include "chatmessage.h"
 #include <QDateTime>
+#include <QStringList>
 
-ChatMessage::ChatMessage(QObject* parent)
-    : QObject(parent), type(MSG_TEXT), timestamp(QDateTime::currentDateTime().toString("hh:mm:ss"))
+ChatMessage::ChatMessage()
+    : type(MSG_TEXT), timestamp(QDateTime::currentDateTime().toString("hh:mm:ss"))
 {
 }
 
 ChatMessage::ChatMessage(const QString& sender, const QString& content,
-    MessageType type, QObject* parent)
-    : QObject(parent), sender(sender), content(content), type(type),
+    MessageType type)
+    : sender(sender), content(content), type(type),
     timestamp(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"))
 {
 }
@@ -17,7 +18,6 @@ void ChatMessage::setSender(const QString& sender)
 {
     if (this->sender != sender) {
         this->sender = sender;
-        emit messageChanged();
     }
 }
 
@@ -25,7 +25,6 @@ void ChatMessage::setContent(const QString& content)
 {
     if (this->content != content) {
         this->content = content;
-        emit messageChanged();
     }
 }
 
@@ -33,7 +32,6 @@ void ChatMessage::setType(MessageType type)
 {
     if (this->type != type) {
         this->type = type;
-        emit messageChanged();
     }
 }
 
@@ -41,7 +39,6 @@ void ChatMessage::setReceiver(const QString& receiver)
 {
     if (this->receiver != receiver) {
         this->receiver = receiver;
-        emit messageChanged();
     }
 }
 
@@ -102,9 +99,35 @@ QString ChatMessage::toNetworkFormat() const
     return serialize();
 }
 
+QString ChatMessage::serialize() const
+{
+    // Keep protocol compatible with the previous wire format:
+    // type|sender|content|timestamp|receiver
+    return QString("%1|%2|%3|%4|%5")
+        .arg(static_cast<int>(type))
+        .arg(sender)
+        .arg(content)
+        .arg(timestamp)
+        .arg(receiver);
+}
+
 ChatMessage ChatMessage::fromNetwork(const QString& data)
 {
     return ChatMessage::deserialize(data);
+}
+
+ChatMessage ChatMessage::deserialize(const QString& data)
+{
+    QStringList parts = data.split("|");
+    ChatMessage msg;
+    if (parts.size() >= 5) {
+        msg.type = static_cast<MessageType>(parts[0].toInt());
+        msg.sender = parts[1];
+        msg.content = parts[2];
+        msg.timestamp = parts[3];
+        msg.receiver = parts[4];
+    }
+    return msg;
 }
 
 QString ChatMessage::formatTimestamp(const QDateTime& dt)

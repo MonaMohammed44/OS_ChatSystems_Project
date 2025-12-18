@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
         // Start server only when requested
         Server server;
         if (serverMode) {
-            if (!server.startServer()) {
+            if (!server.startServer(port)) {
                 QMessageBox::critical(nullptr, "Error", "Failed to start server!");
                 return 1;
             }

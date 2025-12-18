@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="chatmessage.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="server.cpp" />
@@ -155,7 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="chatmessage.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="protocol.h" />
     <ClInclude Include="server.h" />
   </ItemGroup>
   <ItemGroup>

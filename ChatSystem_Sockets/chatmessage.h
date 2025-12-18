@@ -7,14 +7,12 @@
 #include <QMetaType>
 #include "protocol.h"
 
-class ChatMessage : public QObject
+class ChatMessage
 {
-    Q_OBJECT
-
 public:
-    ChatMessage(QObject* parent = nullptr);
+    ChatMessage();
     ChatMessage(const QString& sender, const QString& content,
-        MessageType type = MSG_TEXT, QObject* parent = nullptr);
+        MessageType type = MSG_TEXT);
 
     // Getters
     QString getSender() const { return sender; }
@@ -33,14 +31,14 @@ public:
     QString toString() const;
     QString toHtml() const;
     QString toNetworkFormat() const;
+    QString serialize() const;
 
     // Static methods
     static ChatMessage fromNetwork(const QString& data);
+    static ChatMessage deserialize(const QString& data);
     static QString formatTimestamp(const QDateTime& dt);
 
 signals:
-    void messageChanged();
-
 private:
     QString sender;
     QString content;
